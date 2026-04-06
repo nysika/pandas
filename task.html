@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Техническое задание: анализ продаж и кластеризация</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 50px 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 15px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header .subtitle {
+            font-size: 1.1em;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 0.85em;
+            margin-top: 15px;
+        }
+
+        /* Content */
+        .content {
+            padding: 45px;
+        }
+
+        /* Section styles */
+        .section {
+            margin-bottom: 45px;
+            border-radius: 16px;
+            background: #f8fafc;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px 25px;
+            font-size: 1.5em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-header .icon {
+            font-size: 1.3em;
+        }
+
+        .section-body {
+            padding: 25px;
+        }
+
+        /* Business requirements */
+        .requirements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .req-card {
+            background: white;
+            padding: 20px;
+            border-radius: 14px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+        .req-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .req-card .req-icon {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .req-card h4 {
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .req-card p {
+            color: #4a5568;
+            font-size: 0.9em;
+        }
+
+        /* Code block */
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-family: 'Courier New', 'Fira Code', monospace;
+            font-size: 0.85em;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .code-block code {
+            background: none;
+            padding: 0;
+        }
+
+        .inline-code {
+            background: #e2e8f0;
+            color: #1e293b;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        /* Lists */
+        .task-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .task-list li {
+            padding: 8px 0 8px 28px;
+            position: relative;
+            margin-bottom: 5px;
+        }
+
+        .task-list li:before {
+            content: "▹";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .sub-list {
+            list-style: none;
+            padding-left: 30px;
+            margin-top: 5px;
+        }
+
+        .sub-list li:before {
+            content: "◦";
+            color: #94a3b8;
+        }
+
+        /* Feature grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .feature-item {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        /* Report sheets */
+        .sheets-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .sheet-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 18px 22px;
+            border-radius: 16px;
+            flex: 1;
+            min-width: 180px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .sheet-card:nth-child(2) { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .sheet-card:nth-child(3) { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .sheet-card:nth-child(4) { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+
+        .sheet-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .sheet-card .sheet-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .sheet-card .sheet-desc {
+            font-size: 0.85em;
+            opacity: 0.95;
+        }
+
+        /* Edge cases */
+        .warning-box {
+            background: #fef5e7;
+            border-left: 4px solid #f39c12;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+
+        .warning-box ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        hr {
+            margin: 30px 0;
+            border: none;
+            height: 1px;
+            background: linear-gradient(to right, #e2e8f0, transparent);
+        }
+
+        .footer {
+            background: #1a202c;
+            color: #a0aec0;
+            text-align: center;
+            padding: 25px;
+            font-size: 0.85em;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            .section-header {
+                font-size: 1.2em;
+            }
+            .header h1 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 «Анализ динамики продаж с коррекцией на сезонность, региональные скидки и LTV-кластеры»</h1>
+            <div class="subtitle">Комплексное техническое задание для Python-разработчика (pandas, scikit-learn)</div>
+            <div class="header-badge">🚀 Маркетинговая аналитика | Машинное обучение | Бизнес-стратегии</div>
+        </div>
+
+        <div class="content">
+            <!-- Бизнес-требования -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="icon">🎯</span>
+                    Описание бизнес-требований
+                </div>
+                <div class="section-body">
+                    <p style="margin-bottom: 20px;">Ваш отдел маркетинга хочет получить <strong>агрегированный отчёт</strong>, который поможет:</p>
+                    <div class="requirements-grid">
+                        <div class="req-card">
+                            <div class="req-icon">📈</div>
+                            <h4>Оценить реальную эффективность</h4>
+                            <p>Каждого товара с учётом скидок</p>
+                        </div>
+                        <div class="req-card">
+                            <div class="req-icon">🗺️</div>
+                            <h4>Выявить регионы</h4>
+                            <p>С аномальным спросом</p>
+                        </div>
+                        <div class="req-card">
+                            <div class="req-icon">🔮</div>
+                            <h4>Рассчитать прогноз</h4>
+                            <p>Скорректированный прогноз продаж на следующую неделю</p>
+                        </div>
+                        <div class="req-card">
+                            <div class="req-icon">🏷️</div>
+                            <h4>Присвоить стратегический кластер</h4>
+                            <p>На основе маржинальности, частоты продаж и регионального покрытия</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Техническая задача -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="icon">💻</span>
+                    Техническая задача для программиста
+                </div>
+                <div class="section-body">
+                    <p>Используя <span class="inline-code">pandas</span> (и при необходимости <span class="inline-code">numpy</span>, <span class="inline-code">datetime</span>, <span class="inline-code">itertools</span>), необходимо:</p>
+
+                    <ul class="task-list">
+                        <li><strong>Загрузить</strong> <span class="inline-code">sales_data.csv</span>.</li>
+                        
+                        <li><strong>Рассчитать для каждой строки:</strong>
+                            <ul class="sub-list">
+                                <li><span class="inline-code">revenue = unit_price * quantity_sold * (1 - discount)</span></li>
+                                <li><span class="inline-code">cost_price</span> (вычисляется как <span class="inline-code">unit_price * 0.6</span> для всех товаров)</li>
+                                <li><span class="inline-code">profit = revenue - cost_price * quantity_sold</span></li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Сгруппировать данные по <span class="inline-code">product_id</span> и создать признаки:</strong>
+                            <div class="feature-grid">
+                                <span class="feature-item">📦 total_quantity</span>
+                                <span class="feature-item">💰 total_revenue</span>
+                                <span class="feature-item">🏷️ avg_discount</span>
+                                <span class="feature-item">🌍 unique_regions</span>
+                                <span class="feature-item">📅 sales_frequency</span>
+                            </div>
+                        </li>
+                        
+                        <li><strong>Выполнить региональный анализ:</strong>
+                            <ul class="sub-list">
+                                <li>Для каждого <span class="inline-code">region</span> найти <strong>топ-2 товара</strong> по сумме <span class="inline-code">profit</span> и сохранить в отдельном DataFrame.</li>
+                                <li>Определить регионы, где <span class="inline-code">profit</span> от сегмента <strong>Премиум</strong> составляет <strong>более 40%</strong> от общего <span class="inline-code">profit</span> региона.</li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Построить прогноз (упрощённый, но правдоподобный):</strong>
+                            <ul class="sub-list">
+                                <li>Для каждого товара экстраполировать продажи на <strong>следующие 7 дней</strong>, используя <strong>линейную регрессию</strong> (через <span class="inline-code">sklearn</span> или <span class="inline-code">numpy.polyfit</span>) по дням исходных продаж.</li>
+                                <li>Если для товара <strong>меньше 3 уникальных дней продаж</strong> — использовать <strong>медианное значение</strong> <span class="inline-code">quantity_sold</span> за все дни.</li>
+                            </ul>
+                        </li>
+                        
+                        <li><strong>Применить кластеризацию (k-means, через sklearn) для товаров</strong> на основе признаков:
+                            <div class="feature-grid">
+                                <span class="feature-item">📊 total_quantity</span>
+                                <span class="feature-item">💵 total_revenue</span>
+                                <span class="feature-item">🎯 avg_discount</span>
+                                <span class="feature-item">🗺️ unique_regions</span>
+                                <span class="feature-item">🔮 прогноз на 7 дней</span>
+                            </div>
+                            <div style="margin-top: 10px;">
+                                Количество кластеров определить <strong>методом локтя (Elbow method)</strong>, результат — новый столбец <span class="inline-code">cluster_id</span> в итоговой таблице товаров.
+                            </div>
+                        </li>
+                        
+                        <li><strong>Создать итоговый отчёт — Excel-файл</strong> со следующими листами:
+                            <div class="sheets-container">
+                                <div class="sheet-card">
+                                    <div class="sheet-name">📋 products_summary</div>
+                                    <div class="sheet-desc">агрегация по товарам + кластер + прогноз</div>
+                                </div>
+                                <div class="sheet-card">
+                                    <div class="sheet-name">🗺️ region_profit_analysis</div>
+                                    <div class="sheet-desc">прибыль по регионам и сегментам</div>
+                                </div>
+                                <div class="sheet-card">
+                                    <div class="sheet-name">⭐ high_value_regions</div>
+                                    <div class="sheet-desc">регионы, где доля Премиум > 40%</div>
+                                </div>
+                                <div class="sheet-card">
+                                    <div class="sheet-name">💡 cluster_recommendations</div>
+                                    <div class="sheet-desc">средние показатели и текстовая стратегия</div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <!-- Обработка крайних случаев -->
+                    <div class="warning-box">
+                        <strong>⚠️ Обработать крайние случаи:</strong>
+                        <ul>
+                            <li>Если в файле есть товары с <strong>нулевыми продажами</strong> — исключить из кластеризации, но включить в отчёт с пометкой <span class="inline-code">inactive</span>.</li>
+                            <li>Добавить проверку на <strong>отрицательную прибыль</strong> (если <span class="inline-code">discount > 1</span>).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Дополнительная информация -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="icon">📎</span>
+                    Формат сдачи
+                </div>
+                <div class="section-body">
+                    <ul class="task-list">
+                        <li><span class="inline-code">solution.py</span> — с подробными комментариями</li>
+                        <li><span class="inline-code">marketing_report.xlsx</span> — итоговый Excel-отчёт</li>
+                        <li><span class="inline-code">README.txt</span> — краткое объяснение логики прогноза и выбора количества кластеров</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Технологический стек -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="icon">🛠️</span>
+                    Технологический стек
+                </div>
+                <div class="section-body">
+                    <div class="feature-grid">
+                        <span class="feature-item">🐼 pandas</span>
+                        <span class="feature-item">🔢 numpy</span>
+                        <span class="feature-item">📅 datetime</span>
+                        <span class="feature-item">🔄 itertools</span>
+                        <span class="feature-item">🤖 scikit-learn</span>
+                        <span class="feature-item">📊 openpyxl</span>
+                        <span class="feature-item">📈 matplotlib (опционально)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>✅ Задача проверяет навыки: работа с временными рядами, кластеризация, бизнес-аналитика, построение отчётов</p>
+            <p style="margin-top: 8px;">📌 Уровень сложности: <strong>Продвинутый (Advanced)</strong> | Ожидаемое время выполнения: 3-5 часов</p>
+        </div>
+    </div>
+</body>
+</html>
